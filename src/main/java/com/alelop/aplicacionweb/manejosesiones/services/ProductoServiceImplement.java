@@ -9,17 +9,19 @@ package com.alelop.aplicacionweb.manejosesiones.services;
 import com.alelop.aplicacionweb.manejosesiones.models.Producto;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-public class ProductoServiceImplement {
-    // Define la clase pública ProductoServiceImplement que implementa la interfaz ProductoService
-    public class ProductoServiceImplement implements ProductoService {
-        @Override
-        public List<Producto> listar() {
-            // Retorna una lista inmutable creada a partir de los elementos proporcionados
-            return Arrays.asList(
-                    new Producto(1L, "Laptop", "computación", 250.25),
-                    new Producto(2L, "Refrigeradora", "cocina", 745.13),
-                    new Producto(3L, "Cama", "dormitorio", 350.12));
-        }
+// Define la clase pública ProductoServiceImplement que implementa la interfaz ProductoService
+public class ProductoServiceImplement implements ProductoService {
+    @Override
+    public List<Producto> listar() {
+        return Arrays.asList(new Producto(1L,"Laptop","Computación",250.25),
+                new Producto(2L,"Refrigeradora","Cocina",745.13),
+                new Producto(3L,"Cama","Dormitorio",350.12));
+    }
+
+    @Override
+    public Optional<Producto> porId(Long id) {
+        return listar().stream().filter(p -> p.getIdProducto().equals(id)).findAny();
     }
 }

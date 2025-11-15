@@ -8,9 +8,11 @@ package com.alelop.aplicacionweb.manejosesiones.services;
 
 import com.alelop.aplicacionweb.manejosesiones.models.Producto;
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductoService {
-    // Declara el métodos 'listar' que debe ser implementado
+    // Declara el método 'listar' que debe ser implementado
     // Este métodos no recibe argumentos y retorna una lista de objetos Producto
     List<Producto> listar();
+    Optional<Producto> porId(Long id);
 }

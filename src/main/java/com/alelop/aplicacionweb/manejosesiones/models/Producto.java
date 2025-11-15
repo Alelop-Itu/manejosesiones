@@ -73,4 +73,5 @@ public class Producto {
         // Asigna el valor del parámetro 'precio' a la variable de instancia 'this.precio'
         this.precio = precio;
     }
+
 }

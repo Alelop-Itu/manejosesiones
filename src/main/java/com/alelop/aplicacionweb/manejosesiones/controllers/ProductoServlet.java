@@ -3,7 +3,7 @@ package com.alelop.aplicacionweb.manejosesiones.controllers;
  * Autor: Alejandra López
  * Fecha: 11/11/2025
  * Descripción: Esta clase llamada ProductoServlet,
- * se encarha de modelar el servlet de Producto, clase hija de HttpServlet
+ * se encarga de modelar el servlet de Producto, clase hija de HttpServlet
  *
  */
 // Importa la clase ServletException del API de Jakarta Servlet
@@ -23,135 +23,114 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 
-
-// Clave para acceso desde index
 @WebServlet({"/productos.html", "/productos"})
 public class ProductoServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        // Instancia del servicio de productos
-
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ProductoService service = new ProductoServiceImplement();
         List<Producto> productos = service.listar();
 
         LoginService auth = new LoginServiceSessionImplement();
         Optional<String> usernameOptional = auth.getUsername(req);
 
-        // --- LÓGICA DEL CONTADOR DE HITS DE SESIÓN (MOVIDA AQUÍ) ---
-        Integer counter = null;
-        if(usernameOptional.isPresent()) {
-            HttpSession session = req.getSession();
-            // Obtener el contador de la sesión (puede ser null la primera vez)
-            counter = (Integer) session.getAttribute("hitCounter");
+        // Se utiliza este método para obtener el contador de ingresos de la sesión
+        HttpSession session = req.getSession(false);
+        Integer contadorIngresos = (session != null) ? (Integer) session.getAttribute("contadorIngresos") : null;
 
-            if (counter == null) {
-                // Si es la primera vez, inicializamos en 1
-                counter = 1;
-            } else {
-                // Si ya existe, incrementamos
-                counter++;
-            }
-            // Guardamos el nuevo valor en la sesión
-            session.setAttribute("hitCounter", counter);
-        }
-        // -----------------------------------------------------------
 
-        // Establece tipo de contenido HTML con codificación UTF-8
-        resp.setContentType("text/html; charset=UTF-8");
-
+        resp.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = resp.getWriter()) {
-
-            // Comienza a generar la respuesta HTML con Bootstrap
             out.println("<!DOCTYPE html>");
-            out.println("<html lang='es'>");
+            out.println("<html>");
             out.println("<head>");
             out.println("<meta charset='UTF-8'>");
-            out.println("<meta name='viewport' content='width=device-width, initial-scale=1'>");
-            out.println("<title>Lista de Productos</title>");
+            out.println("<title>Listado de Productos</title>");
+            // Se utiliza este método para enlazar la librería Bootstrap a través de un CDN
             out.println("<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet'>");
             out.println("</head>");
-            out.println("<body class='bg-light'>");
+            // Esta clase se encarga de dar un fondo verde muy claro (Floral) a toda la página
+            out.println("<body class='bg-success-subtle'>");
 
-            // Contenedor principal
+            // Esta clase se encarga de crear un contenedor centrado con margen superior
             out.println("<div class='container mt-5'>");
-            out.println("<div class='card shadow-lg'>");
-            out.println("<div class='card-header bg-success text-white text-center'>");
-            out.println("<h1 class='mb-0'>Lista de Productos</h1>");
-            out.println("</div>");
+            // Esta clase se encarga de crear una tarjeta con sombra y borde verde (Floral)
+            out.println("<div class='card shadow-lg border-success'>");
             out.println("<div class='card-body'>");
 
-            // Mensaje de Bienvenida y Contador
-            if(usernameOptional.isPresent()) {
-                out.println("<div class='alert alert-success' role='alert'>");
-                out.println("Hola <strong>" + usernameOptional.get() + "</strong>. ¡Bienvenido!");
-                out.println("</div>");
+            // Esta clase se encarga de usar el color verde de éxito (success) y centrar el título
+            out.println("<h1 class='text-center mb-4 text-success'>Listado de productos</h1>");
 
-                // --- MOSTRAR EL CONTADOR ---
-                out.println("<p class='text-muted mt-3 text-center'>Esta página se ha recargado <strong>" + counter + "</strong> veces en esta sesión.</p>");
-                // ---------------------------
+            // Mostrar mensaje de bienvenida si hay sesión activa
+            if (usernameOptional.isPresent()) {
+                // Esta clase se encarga de mostrar un mensaje de éxito con fondo verde
+                out.println("<div class='alert alert-success text-center' role='alert'>");
+                out.println("Hola <strong>" + usernameOptional.get() + "</strong>, ¡bienvenido!");
+
+                // Se utiliza este método para mostrar el contador de ingresos
+                if (contadorIngresos != null && contadorIngresos > 0) {
+                    out.println("<p class='mb-0'><small>Esta es tu visita número: <strong>" + contadorIngresos + "</strong></small></p>");
+                }
+                out.println("</div>");
             } else {
-                out.println("<div class='alert alert-warning' role='alert'>");
-                out.println("Inicia sesión para ver los precios de los productos.");
+                // Esta clase se encarga de mostrar un mensaje de advertencia
+                out.println("<div class='alert alert-warning text-center' role='alert'>");
+                out.println("Inicia sesión para ver los precios y agregar productos al carro.");
                 out.println("</div>");
             }
 
             // Tabla de productos
-            out.println("<div class='table-responsive'>");
-            out.println("<table class='table table-bordered table-hover align-middle'>");
-            out.println("<thead class='table-success text-center'>");
+            // Estas clases se encargan de aplicar un estilo moderno de tabla (bandas, bordes, centrado)
+            out.println("<table class='table table-striped table-bordered text-center align-middle mt-3'>");
+            // Esta clase se encarga de aplicar un fondo verde (success) a la cabecera de la tabla
+            out.println("<thead class='table-success'>");
             out.println("<tr>");
-            out.println("<th>ID PRODUCTO</th>");
-            out.println("<th>NOMBRE</th>");
-            out.println("<th>CATEGORÍA</th>");
+            out.println("<th>ID</th>");
+            out.println("<th>Nombre</th>");
+            out.println("<th>Categoría</th>");
             if (usernameOptional.isPresent()) {
-                out.println("<th>PRECIO</th>");
+                out.println("<th>Precio</th>");
+                out.println("<th>Opciones</th>");
             }
             out.println("</tr>");
             out.println("</thead>");
             out.println("<tbody>");
-
-            productos.forEach(p->{
+            for (Producto p : productos) {
                 out.println("<tr>");
-                out.println("<td class='text-center'>" + p.getIdProducto() + "</td>");
+                out.println("<td>" + p.getIdProducto() + "</td>");
                 out.println("<td>" + p.getNombre() + "</td>");
                 out.println("<td>" + p.getCategoria() + "</td>");
                 if (usernameOptional.isPresent()) {
-                    out.println("<td class='text-end'>$ " + String.format("%.2f", p.getPrecio()) + "</td>");
+                    out.println("<td>$" + p.getPrecio() + "</td>");
+                    // Estas clases se encargan de estilizar el enlace como un botón pequeño y verde (success)
+                    out.println("<td><a href=\""
+                            +req.getContextPath()
+                            +"/agregar-carro?id="
+                            +p.getIdProducto()
+                            +"\" class='btn btn-sm btn-success'>Añadir al Carro</a></td>");
                 }
                 out.println("</tr>");
-            });
+            }
             out.println("</tbody>");
             out.println("</table>");
-            out.println("</div>");
 
-            // Botones de sesión
-            out.println("<div class='mt-4 text-center'>");
-
+            // Esta clase se encarga de centrar los botones de navegación
+            out.println("<div class='text-center mt-4'>");
+            // Esta clase se encarga de crear un botón con borde verde (Floral)
+            out.println("<a href='" + req.getContextPath() + "/index.html' class='btn btn-outline-success me-2'>Volver al inicio</a>");
             if (usernameOptional.isPresent()) {
-                // Formulario POST para cerrar sesión
-                out.println("<form action='" + req.getContextPath() + "/logout' method='post' style='display:inline;'>");
-                out.println("<button type='submit' class='btn btn-danger me-2'>Cerrar sesión</button>");
-                out.println("</form>");
-            } else {
-                // Enlace para iniciar sesión
-                out.println("<a href='" + req.getContextPath() + "/login.jsp' class='btn btn-primary me-2'>Iniciar sesión</a>");
+                // Esta clase se encarga de crear un botón para ir al carrito
+                out.println("<a href='" + req.getContextPath() + "/carro.jsp' class='btn btn-outline-info me-2'>Ver Carrito</a>");
+                // Esta clase se encarga de crear un botón de color rojo (peligro)
+                out.println("<a href='" + req.getContextPath() + "/logout' class='btn btn-danger'>Cerrar sesión</a>");
             }
-
-            // Botón Regresar (redirige correctamente al inicio)
-            out.println("<a href='" + req.getContextPath() + "/index.html' class='btn btn-outline-secondary'>Regresar al inicio</a>");
             out.println("</div>");
 
-            // Cierre de card y container
             out.println("</div>");
             out.println("</div>");
             out.println("</div>");
-
-            // Script de Bootstrap
-            out.println("<script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js'></script>");
             out.println("</body>");
             out.println("</html>");
         }
     }
-}
 
+}
